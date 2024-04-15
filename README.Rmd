@@ -1,0 +1,64 @@
+---
+title: "Unearthed Disparities: Exploring the Effects of Earthquakes on HIV Care Accessibility in Latin America"
+author: "Honors Thesis by Abby Draeger (Advised by Sarah Lotspeich)"
+date: "Last Updated: 15 April 2024"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, message = FALSE}
+# Load packages
+library(dplyr) ## for data wrangling
+```
+
+## Setup
+
+The data are saved as the `data.csv` file in the GitHub repository and can be read in using the following code. 
+
+```{r}
+# Read in data
+dat_url = "https://raw.githubusercontent.com/sarahlotspeich/unearthed_disparities/main/data.csv"
+dat = read.csv(file = dat_url)
+```
+
+## Sample Size 
+
+The data are given to you in a long format, meaning that there is one row per earthquake per week. With `r length(unique(dat$Earthquake_id))` earthquakes potentially impacting CCASAnet sites and a time period of 24 weeks before and after each (i.e., 6 months), the total number of rows in our dataset is `r length(unique(dat$Earthquake_id)) * 49`. We can check that this is true with the following code.
+
+```{r}
+## Check that the number of rows is equal to what we expect
+nrow(dat)
+```
+
+In models like this where we have repeated measurements over time, the true "sample size" is driven not by the number of rows in our data but by the number of unique study units. In our case, the earthquakes are the study units, and we have `r length(unique(dat$Earthquake_id))` of them. The `Earthquake_id` column distinguishes these units, and we can view the `r length(unique(dat$Earthquake_id))` values using the code below.
+
+```{r}
+## View the unique earthquakes included in our dataset
+dat |> 
+  select(Earthquake_id) |> ## take just the Earthquake_id column
+  unique() ## and keep only unique values of it
+```
+
+## Column Names
+
+The dataset contains `r ncol(dat)` columns, defined as follows. 
+
+  1.    `Earthquake_id`: A unique identifier for each earthquake, which includes information both about its location and intensity. This variable is a `string` and takes on `r length(unique(dat$Earthquake_id))` possible values. 
+  2.    `Earthquake_Date`: The corresponding date of the earthquake. This variable is read in as a `string` and takes on `r length(unique(dat$Earthquake_Date))` possible values. Note: You will likely need to convert it to a `Date` object for the analysis. 
+  3.    `MMI`: The modified Mercalli intensity. This variable is `numeric`. 
+  4.    `Clinic`: The name of the CCASAnet clinic that was potentially impacted by the earthquake. This variable is a `string` and takes on `r length(unique(dat$Clinic))` possible values. 
+  5.    `Week_Of`: The starting date of the week of the data collection. This variable is read in as a `string` and takes on `r length(unique(dat$Week_Of))` possible values. Note: You will likely need to convert it to a `Date` object for the analysis. 
+  6.    `Patients`: The median number of patients in care at the clinic for the week starting on `Week_Of`. This variable is `numeric`. 
+  7.    `Visits`: The number of visits at the clinic for the week starting on `Week_Of`. This variable is `numeric`. 
+  8.    `CD4`: The number of CD4 labs completed at the clinic for the week starting on `Week_Of`. This variable is `numeric`. 
+  9.    `ViralLoad`: The number of viral load (RNA) labs completed at the clinic for the week starting on `Week_Of`. This variable is `numeric`. 
+  10.    `ART`: The number of new antiretroviral therapy (ART) regimens prescribed at the clinic for the week starting on `Week_Of`. This variable is `numeric`. 
+  
+```{r}
+## View the first six rows in our dataset
+dat |> 
+  head()
+```
